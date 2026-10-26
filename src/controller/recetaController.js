@@ -10,9 +10,14 @@ export const analizarReceta = async (req, res) => {
       return res.status(400).json({ success: false, error: 'No se recibió ninguna imagen.' });
     }
 
+    // Convertimos el buffer binario de la imagen a un string Base64
     const imagenBase64 = req.file.buffer.toString('base64');
+    
+    // Armamos el Data URL combinando el tipo de archivo (jpg, png, etc) con el string Base64
     const dataUrl = `data:${req.file.mimetype};base64,${imagenBase64}`;
+    // ==========================================
 
+    // 3. Llamar a la API de OpenAI usando GPT-4o
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       response_format: { type: "json_object" },
@@ -48,7 +53,22 @@ export const analizarReceta = async (req, res) => {
       temperature: 0.1,
     });
 
-    const datosReceta = JSON.parse(response.choices.message.content);
+    // --- NUEVA VALIDACIÓN DE SEGURIDAD ---
+    // Imprime la respuesta completa en la consola para auditarla si falla
+    console.log("Respuesta cruda de OpenAI:", JSON.stringify(response, null, 2));
+
+    if (!response.choices || !response.choices[0] || !response.choices[0].message) {
+      throw new Error("La estructura de respuesta de OpenAI no es la esperada.");
+    }
+
+    // Forma segura y moderna de acceder al contenido
+    const contenidoTexto = response.choices[0].message.content;
+    
+    if (!contenidoTexto) {
+      throw new Error("El contenido del mensaje devuelto por OpenAI está vacío.");
+    }
+
+    const datosReceta = JSON.parse(contenidoTexto);
     return res.status(200).json({ success: true, data: datosReceta });
 
   } catch (error) {

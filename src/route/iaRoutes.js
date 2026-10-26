@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { analizarReceta } from '../controllers/recetaController.js';
+import { analizarReceta } from '../controller/recetaController.js';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
