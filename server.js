@@ -7,16 +7,20 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 // Configuración de CORS para permitir peticiones desde tus otros sistemas
+/*
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+console.log(allowedOrigins)
 app.use(cors({
   origin: (origin, callback) => {
+    console.log(origin);
     if (!origin || allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
       callback(null, true);
     } else {
       callback(new Error('No permitido por políticas de CORS'));
     }
   }
-}));
+}));*/
+app.use(cors({ origin: '*' }));
 
 app.use(express.json());
 
